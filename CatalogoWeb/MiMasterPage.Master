@@ -1,0 +1,129 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="MiMasterPage.master.cs" Inherits="CatalogoWeb.MiMasterPage" %>
+
+<!DOCTYPE html>
+
+<html>
+
+
+
+<head runat="server">
+    <title>Catálogo</title>
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .footer {
+            margin-top: auto;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+
+    <form id="form1" runat="server">
+        <div>
+
+            <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="clear">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="#">Catálogo</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link active" aria-current="page" href="Default.aspx">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="Buscador.aspx">Buscador</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Categorias
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <%for (int i = 0; i < listCategorias.Count; i++)
+                                        {                                            %>
+                                    <li><a class="dropdown-item" href="Categoria.aspx?categoria=<%=listCategorias[i].Id.ToString()%>"><%=listCategorias[i].Descripcion.ToString()%></a></li>
+
+                                    <%} %>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Editorial
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <%for (int i = 0; i < listEditorial.Count; i++)
+                                        {                                            %>
+                                    <li><a class="dropdown-item" href="Editorial.aspx?editorial=<%=listEditorial[i].Id.ToString()%>"><%=listEditorial[i].Descripcion.ToString()%></a></li>
+
+                                    <%} %>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="Contacto.aspx">Contacto</a>
+                            </li>
+                        </ul>
+                        <%--<ul class="navbar-nav mb-2 mb-lg-0">
+                            <%if (Session["usuario"] != null)
+                                {%>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" style="color: white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Perfil
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="nav-link" href="Perfil.aspx" style="color: white">Mi perfil</a></li>
+                                    <li>
+                                        <asp:Button Text="Salir" CssClass="btn btn-danger" runat="server" ID="btnSalir" OnClick="btnSalir_Click" /></li>
+                                </ul>
+                            </li>
+                            <%}
+                                else
+                                {%>
+
+                            <li class="me-3">
+                                <a class="nav-link" href="Login.aspx" style="color: white">Login</a>
+                            </li>
+                            <%}%>
+                            <li>
+                                <asp:Image ID="imgAvatar" Style="height: 40px; width: 40px; border-radius: 50%; object-fit: contain;" runat="server" onerror="this.src='Imagenes/Perfil/sinfoto.jpg'" />
+                            </li>
+                        </ul>--%>
+                    </div>
+                </div>
+            </nav>
+
+            <img src="Imagenes/MagicStore-portada.jpg" alt="Portada no disponible" style="height: auto; width: 100%" />
+
+            <div class="container">
+                <hr />
+                <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+                </asp:ContentPlaceHolder>
+                <hr />
+            </div>
+        </div>
+    </form>
+
+    <div class="card footer">
+        <div class="card-header">
+            Contacto: mercadofree@ejemplo.com
+        </div>
+        <div class="card-body">
+            <blockquote class="blockquote mb-0">
+                <p>9am - 8pm de lunes a viernes</p>
+                <footer class="blockquote-footer">Buenos aires, Argentina <cite title="Source Title">All right reserved.</cite></footer>
+            </blockquote>
+        </div>
+    </div>
+
+</body>
+
+</html>
