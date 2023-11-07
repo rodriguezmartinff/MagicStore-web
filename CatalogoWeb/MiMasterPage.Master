@@ -52,7 +52,8 @@
                                 </a>
                                 <ul class="dropdown-menu">
                                     <%for (int i = 0; i < listCategorias.Count; i++)
-                                        {                                            %>
+                                        {
+                                            %>
                                     <li><a class="dropdown-item" href="Categoria.aspx?categoria=<%=listCategorias[i].Id.ToString()%>"><%=listCategorias[i].Descripcion.ToString()%></a></li>
 
                                     <%} %>
@@ -63,7 +64,8 @@
                                 </a>
                                 <ul class="dropdown-menu">
                                     <%for (int i = 0; i < listEditorial.Count; i++)
-                                        {                                            %>
+                                        {
+                                            %>
                                     <li><a class="dropdown-item" href="Editorial.aspx?editorial=<%=listEditorial[i].Id.ToString()%>"><%=listEditorial[i].Descripcion.ToString()%></a></li>
 
                                     <%} %>

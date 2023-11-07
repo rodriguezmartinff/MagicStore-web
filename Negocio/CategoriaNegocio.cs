@@ -69,5 +69,46 @@ namespace Negocio
                 datos.CerrarConexion();
             }
         }
+
+        public void EliminarCategoria(int Id)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.SetearConsulta("delete from CATEGORIAS where Id = @Id");
+                datos.SetearParametro("@Id", Id);
+
+                datos.EjecutarAccion();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.CerrarConexion();
+            }
+        }
+
+        public void Agregar(string categoria)
+        {
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.SetearConsulta("insert into CATEGORIAS (Descripcion) values (@cat)");
+                datos.SetearParametro("@cat", categoria);
+                datos.EjecutarAccion();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.CerrarConexion();
+            }
+
+        }
     }
 }

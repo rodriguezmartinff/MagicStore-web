@@ -44,6 +44,12 @@ namespace CatalogoWeb
                 case 10:
                     lblMensaje.Text = "Campos incompletos";
                     break;
+                case 11:
+                    lblMensaje.Text = "No se puede eliminar esta categoría mientras tenga artículos a su nombre.";
+                    break;
+                case 12:
+                    lblMensaje.Text = "No se puede eliminar esta editorial mientras tenga artículos a su nombre.";
+                    break;
                 default:
                     //lblMensaje.Text = Session["mensaje"].ToString();
                     break;
@@ -78,7 +84,13 @@ namespace CatalogoWeb
                     Response.Redirect("Registrarse.aspx");
                     break;
                 case 10:    //falta completar campos en perfil
-                    Response.Redirect("Perfil.aspx"); 
+                    Response.Redirect("Perfil.aspx");
+                    break;
+                case 11:
+                    Response.Redirect("ListaArticulos.aspx");
+                    break;
+                case 12:
+                    Response.Redirect("ListaArticulos.aspx");
                     break;
                 default:
                     Response.Redirect("Default.aspx");

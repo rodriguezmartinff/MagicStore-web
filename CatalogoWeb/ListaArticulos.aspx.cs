@@ -11,7 +11,6 @@ namespace CatalogoWeb
 {
     public partial class ListaArticulos : System.Web.UI.Page
     {
-        public bool FiltroAvanzado { get; set; }
 
         public enum TipoUsuario
         {
@@ -23,10 +22,13 @@ namespace CatalogoWeb
         public TipoUsuario UsuarioTipo { get; set; }
         protected void Page_Load(object sender, EventArgs e)
         {
-            FiltroAvanzado = cbFiltroAvanzado.Checked;
+            //FiltroAvanzado = cbFiltroAvanzado.Checked;
             
-            //if (IsPostBack)
-            //    return;
+            if (!IsPostBack)
+            {
+                ViewState["AddCategoria"] = false;
+                ViewState["AddEditorial"] = false;
+            }
 
             try
             {
@@ -40,16 +42,28 @@ namespace CatalogoWeb
                 else
                     UsuarioTipo = TipoUsuario.NORMAL;
 
-                if(UsuarioTipo == TipoUsuario.ADMIN)
+                UsuarioTipo = TipoUsuario.ADMIN;
+
+                if (UsuarioTipo == TipoUsuario.ADMIN)
                 {
                     gvArticulosLogin.DataSource = Session["ListaArticulos"];
                     gvArticulosLogin.DataBind();
+
+                    CategoriaNegocio negociocat = new CategoriaNegocio();
+                    gvCategorias.DataSource = negociocat.listar();
+                    gvCategorias.DataBind();
+
+                    MarcaNegocio negociomarc = new MarcaNegocio();
+                    gvEditoriales.DataSource = negociomarc.listar();
+                    gvEditoriales.DataBind();
                 }
                 else
                 {
                     gvArticulos.DataSource = Session["ListaArticulos"];
                     gvArticulos.DataBind();
                 }
+
+
 
             }
             catch (Exception ex)
@@ -97,67 +111,102 @@ namespace CatalogoWeb
             }
         }
 
-        protected void cbFiltroAvanzado_CheckedChanged(object sender, EventArgs e)
+        protected void gvCategorias_SelectedIndexChanged(object sender, EventArgs e)
         {
-            FiltroAvanzado = cbFiltroAvanzado.Checked;
-            txtBuscar.Enabled = !FiltroAvanzado;
-            ddlCampo_SelectedIndexChanged(sender, e);
-        }
-
-        protected void ddlCampo_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            ddlCriterio.Items.Clear();
-            if (ddlCampo.SelectedItem.ToString() != "Precio")
-            {
-                ddlCriterio.Items.Add("Contiene");
-                ddlCriterio.Items.Add("Termina con");
-                ddlCriterio.Items.Add("Empieza con");
-            }
-            else
-            {
-                ddlCriterio.Items.Add("Igual a");
-                ddlCriterio.Items.Add("Menor a");
-                ddlCriterio.Items.Add("Mayor a");
-            }
-        }
-
-        protected void btnBusquedaAvanzada_Click(object sender, EventArgs e)
-        {
-            if(ddlCampo.SelectedIndex == 2)
-            {
-                if(txtFiltroAvanzado.Text == "")
-                {
-                    lblValidacion.Text = "Ingrese valor";
-                    return;
-                }
-
-                try
-                {
-                    decimal aux = decimal.Parse(txtFiltroAvanzado.Text);
-                }
-                catch (Exception)
-                {
-                    lblValidacion.Text = "Formato incorrecto";
-                    return;
-                }
-            }
-            lblValidacion.Text = "";
             try
             {
-                ArticulosNegocio negocio = new ArticulosNegocio();
+                string IdSeleccionado = gvCategorias.SelectedDataKey.Value.ToString();
 
-                if (UsuarioTipo == TipoUsuario.ADMIN)
+                ArticulosNegocio articulosNegocio = new ArticulosNegocio();
+                if(articulosNegocio.ListarPorCategoria(IdSeleccionado).Count != 0)
                 {
-                    gvArticulosLogin.DataSource = negocio.Filtrar(ddlCampo.SelectedValue.ToString(),
-                    ddlCriterio.SelectedValue.ToString(), txtFiltroAvanzado.Text);
-                    gvArticulosLogin.DataBind();
+                    Session.Add("mensaje", 11);
+                    Response.Redirect("Mensaje.aspx", false);
+                    return;
                 }
-                else
+
+                CategoriaNegocio negocio = new CategoriaNegocio();
+                negocio.EliminarCategoria(int.Parse(IdSeleccionado));
+                Response.Redirect("ListaArticulos.aspx", false);
+            }
+            catch (Exception ex)
+            {
+                Session.Add("error", ex.ToString());
+                Response.Redirect("Error.aspx");
+            }
+        }
+
+        protected void gvCategorias_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        {
+            gvCategorias.PageIndex = e.NewPageIndex;
+            gvCategorias.DataBind();
+        }
+
+        protected void gvEditoriales_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                string IdSeleccionado = gvEditoriales.SelectedDataKey.Value.ToString();
+
+                ArticulosNegocio articulosNegocio = new ArticulosNegocio();
+                if (articulosNegocio.ListarPorMarca(IdSeleccionado).Count != 0)
                 {
-                    gvArticulos.DataSource = negocio.Filtrar(ddlCampo.SelectedValue.ToString(),
-                    ddlCriterio.SelectedValue.ToString(), txtFiltroAvanzado.Text);
-                    gvArticulos.DataBind();
+                    Session.Add("mensaje", 12);
+                    Response.Redirect("Mensaje.aspx", false);
+                    return;
                 }
+
+                MarcaNegocio negocio = new MarcaNegocio();
+                negocio.Eliminar(int.Parse(IdSeleccionado));
+                Response.Redirect("ListaArticulos.aspx", false);
+            }
+            catch (Exception ex)
+            {
+                Session.Add("error", ex.ToString());
+                Response.Redirect("Error.aspx");
+            }
+        }
+
+        protected void gvEditoriales_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        {
+            gvEditoriales.PageIndex = e.NewPageIndex;
+            gvEditoriales.DataBind();
+        }
+
+        protected void btnAddCategoria_Click(object sender, EventArgs e)
+        {
+            ViewState["AddCategoria"] = !(bool)ViewState["AddCategoria"];
+        }
+
+        protected void btnAddCatAceptar_Click(object sender, EventArgs e)
+        {
+
+            ViewState["AddCategoria"] = !(bool)ViewState["AddCategoria"];
+
+            CategoriaNegocio negocio = new CategoriaNegocio();
+            
+            try
+            {
+                negocio.Agregar(txtAddCategoria.Text);
+                Response.Redirect("ListaArticulos.aspx", false);
+            }
+            catch (Exception ex)
+            {
+                Session.Add("error", ex.ToString());
+                Response.Redirect("Error.aspx", false );
+            }
+        }
+
+        protected void btnAddEditAceptar_Click(object sender, EventArgs e)
+        {
+            ViewState["AddEditorial"] = !(bool)ViewState["AddEditorial"];
+
+            MarcaNegocio negocio = new MarcaNegocio();
+
+            try
+            {
+                negocio.Agregar(txtAddEditorial.Text);
+                Response.Redirect("ListaArticulos.aspx", false);
             }
             catch (Exception ex)
             {
@@ -165,5 +214,79 @@ namespace CatalogoWeb
                 Response.Redirect("Error.aspx", false);
             }
         }
+
+        protected void btnAddEditorial_Click(object sender, EventArgs e)
+        {
+            ViewState["AddEditorial"] = !(bool)ViewState["AddEditorial"];
+        }
+
+        //protected void cbFiltroAvanzado_CheckedChanged(object sender, EventArgs e)
+        //{
+        //    FiltroAvanzado = cbFiltroAvanzado.Checked;
+        //    txtBuscar.Enabled = !FiltroAvanzado;
+        //    ddlCampo_SelectedIndexChanged(sender, e);
+        //}
+
+        //protected void ddlCampo_SelectedIndexChanged(object sender, EventArgs e)
+        //{
+        //    ddlCriterio.Items.Clear();
+        //    if (ddlCampo.SelectedItem.ToString() != "Precio")
+        //    {
+        //        ddlCriterio.Items.Add("Contiene");
+        //        ddlCriterio.Items.Add("Termina con");
+        //        ddlCriterio.Items.Add("Empieza con");
+        //    }
+        //    else
+        //    {
+        //        ddlCriterio.Items.Add("Igual a");
+        //        ddlCriterio.Items.Add("Menor a");
+        //        ddlCriterio.Items.Add("Mayor a");
+        //    }
+        //}
+
+        //protected void btnBusquedaAvanzada_Click(object sender, EventArgs e)
+        //{
+        //    if(ddlCampo.SelectedIndex == 2)
+        //    {
+        //        if(txtFiltroAvanzado.Text == "")
+        //        {
+        //            lblValidacion.Text = "Ingrese valor";
+        //            return;
+        //        }
+
+        //        try
+        //        {
+        //            decimal aux = decimal.Parse(txtFiltroAvanzado.Text);
+        //        }
+        //        catch (Exception)
+        //        {
+        //            lblValidacion.Text = "Formato incorrecto";
+        //            return;
+        //        }
+        //    }
+        //    lblValidacion.Text = "";
+        //    try
+        //    {
+        //        ArticulosNegocio negocio = new ArticulosNegocio();
+
+        //        if (UsuarioTipo == TipoUsuario.ADMIN)
+        //        {
+        //            gvArticulosLogin.DataSource = negocio.Filtrar(ddlCampo.SelectedValue.ToString(),
+        //            ddlCriterio.SelectedValue.ToString(), txtFiltroAvanzado.Text);
+        //            gvArticulosLogin.DataBind();
+        //        }
+        //        else
+        //        {
+        //            gvArticulos.DataSource = negocio.Filtrar(ddlCampo.SelectedValue.ToString(),
+        //            ddlCriterio.SelectedValue.ToString(), txtFiltroAvanzado.Text);
+        //            gvArticulos.DataBind();
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Session.Add("error", ex.ToString());
+        //        Response.Redirect("Error.aspx", false);
+        //    }
+        //}
     }
 }
